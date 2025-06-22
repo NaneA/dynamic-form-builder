@@ -34,7 +34,9 @@ const QuestionForm: React.FC = () => {
     );
     setEditingId(id);
   };
-
+  const handleSumbit = () => {
+    alert('boxkik');
+  };
   const handleDragEnd = (result: DropResult) => {
     if (!result.destination) return;
     const newOrder = Array.from(order);
@@ -45,7 +47,13 @@ const QuestionForm: React.FC = () => {
 
   return (
     <>
-      <Card sx={{ mb: 2 }}>
+      <Card
+        sx={{
+          borderTop: '10px solid',
+          borderColor: 'primary.main',
+          mb: 4,
+        }}
+      >
         <Box sx={{ pt: 3, px: 2, pb: 2 }}>
           <TextField
             fullWidth
@@ -53,8 +61,10 @@ const QuestionForm: React.FC = () => {
             value={title}
             onChange={(e) => dispatch(setTitle(e.target.value))}
             placeholder="Untitled form"
-            InputProps={{ disableUnderline: true }}
-            sx={{ fontSize: '1.5rem', fontWeight: 'bold', mb: 1 }}
+            InputProps={{
+              disableUnderline: true,
+              sx: { fontWeight: 'bold', fontSize: '1.2rem' },
+            }}
           />
           <TextField
             fullWidth
@@ -99,6 +109,12 @@ const QuestionForm: React.FC = () => {
           )}
         </Droppable>
       </DragDropContext>
+
+      <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
+        <Button variant="contained" onClick={handleSumbit}>
+          Save Form
+        </Button>
+      </Box>
     </>
   );
 };
