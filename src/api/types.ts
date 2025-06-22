@@ -15,3 +15,8 @@ export interface FormPayload {
   questionFields: QuestionPayload[];
   order: string[];
 }
+
+export interface FormListItem {
+  id: string;
+  title: string;
+}
