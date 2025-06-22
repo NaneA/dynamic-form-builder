@@ -28,9 +28,9 @@ import DragHandle from '../assets/DragHandle';
 
 const FIELD_TYPES: { value: FieldType; label: string }[] = [
   { value: 'text', label: 'Short Answer' },
-  { value: 'number', label: 'Number Field' },
-  { value: 'select', label: 'Multiple Choice' },
-  { value: 'radio', label: 'Checkbox' },
+  { value: 'number', label: 'Numeric Input' },
+  { value: 'select', label: 'Multi-select' },
+  { value: 'radio', label: 'Single-select' },
 ];
 
 interface QuestionBuilderProps {
