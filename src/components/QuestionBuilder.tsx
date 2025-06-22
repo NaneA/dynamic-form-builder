@@ -36,7 +36,7 @@ const FIELD_TYPES: { value: FieldType; label: string }[] = [
 interface QuestionBuilderProps {
   id: string;
   isEditing: boolean;
-  onStartEdit: () => void;
+  onStartEdit?: () => void;
   onStopEdit: () => void;
   dragHandleProps?: any;
 }
@@ -74,7 +74,7 @@ const QuestionBuilder: React.FC<QuestionBuilderProps> = ({
         cardRef.current &&
         !cardRef.current.contains(e.target as Node)
       ) {
-        onStopEdit();
+        // onStopEdit();
       }
     };
     document.addEventListener('mousedown', handleClick);

@@ -32,7 +32,7 @@ const QuestionForm: React.FC = () => {
         },
       }),
     );
-    setEditingId(id);
+    // setEditingId(id);
   };
   const handleSumbit = () => {
     alert('boxkik');
