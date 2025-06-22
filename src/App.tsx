@@ -1,15 +1,13 @@
-import { Container, Box, Typography } from '@mui/material';
+import { Routes, Route } from 'react-router-dom';
+import MainPage from './pages/MainPage';
+import FormBuilderPage from './pages/FormBuilderPage';
 
 function App() {
   return (
-    <Container maxWidth="md">
-      <Box my={4}>
-        <Typography variant="h4" component="h1" gutterBottom>
-          Dynamic Form Builder
-        </Typography>
-        {/* TODO: Add your FormBuilder component here */}
-      </Box>
-    </Container>
+    <Routes>
+      <Route path="/" element={<MainPage />} />
+      <Route path="/form/:id" element={<FormBuilderPage />} />
+    </Routes>
   );
 }
 
