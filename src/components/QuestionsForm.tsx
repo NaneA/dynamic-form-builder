@@ -1,9 +1,6 @@
 import React, { useState } from 'react';
 import { Card, Box, TextField, Button } from '@mui/material';
 import { v4 as uuidv4 } from 'uuid';
-import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
-import type { DropResult } from '@hello-pangea/dnd';
-
 import { useAppSelector, useAppDispatch } from '../hooks/hooks';
 import {
   setTitle,
@@ -12,6 +9,8 @@ import {
   reorderFields,
 } from '../store/formBuilderSlice';
 import QuestionBuilder from './QuestionBuilder';
+import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
+import type { DropResult } from '@hello-pangea/dnd';
 
 const QuestionForm: React.FC = () => {
   const dispatch = useAppDispatch();

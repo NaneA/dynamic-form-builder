@@ -15,14 +15,13 @@ import {
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
-import type { SelectChangeEvent } from '@mui/material/Select';
-
 import { useAppSelector, useAppDispatch } from '../hooks/hooks';
 import {
   updateQuestionField,
   removeQuestionField,
 } from '../store/formBuilderSlice';
 import type { FieldType, QuestionField } from '../store/formBuilderSlice';
+import type { SelectChangeEvent } from '@mui/material/Select';
 import DragHandle from '../assets/DragHandle';
 
 const FIELD_TYPES: FieldType[] = ['text', 'number', 'select', 'radio'];
@@ -54,11 +53,9 @@ const QuestionBuilder: React.FC<QuestionBuilderProps> = ({
 
   const handleTypeChange = (e: SelectChangeEvent<FieldType>) => {
     const type = e.target.value as FieldType;
-    if (type === 'text' || type === 'number') {
+    if (type === 'text' || type === 'number')
       onChange({ fieldType: type, options: {} });
-    } else {
-      onChange({ fieldType: type });
-    }
+    else onChange({ fieldType: type });
   };
 
   useEffect(() => {
@@ -83,23 +80,30 @@ const QuestionBuilder: React.FC<QuestionBuilderProps> = ({
       onClick={onStartEdit}
       sx={{
         mb: 2,
-        borderLeft: isEditing ? '4px solid primary.main' : undefined,
+        position: 'relative',
+        borderLeft: isEditing ? '4px solid' : undefined,
+        borderColor: isEditing ? 'primary.main' : undefined,
+        '&:hover .drag-handle': { opacity: 1 },
       }}
     >
       <Box
-        sx={{
-          borderBottom: '1px solid',
-          borderColor: 'divider',
-          py: 1,
-          display: 'flex',
-          justifyContent: 'center',
-        }}
         {...dragHandleProps}
+        className="drag-handle"
+        sx={{
+          position: 'absolute',
+          top: 4,
+          left: '50%',
+          transform: 'translateX(-50%)',
+          opacity: 0,
+          transition: 'opacity 0.2s',
+          zIndex: 1,
+          pointerEvents: 'auto',
+        }}
       >
         <DragHandle />
       </Box>
 
-      <Box sx={{ p: 2 }}>
+      <Box sx={{ pt: 4, p: 2 }}>
         <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
           <TextField
             variant="standard"
@@ -132,38 +136,53 @@ const QuestionBuilder: React.FC<QuestionBuilderProps> = ({
           </FormControl>
         </Box>
 
-        {field.fieldType === 'text' || field.fieldType === 'number' ? (
+        {['text', 'number'].includes(field.fieldType) ? (
           <TextField
             variant="outlined"
             type={field.fieldType}
-            placeholder={isEditing ? 'User input' : undefined}
             fullWidth
             disabled={!isEditing}
             sx={{ mb: 2 }}
           />
         ) : (
           <Box sx={{ mb: 2 }}>
-            {Object.entries(field.options).map(([key, label]) => (
-              <Box
-                key={key}
-                sx={{ display: 'flex', alignItems: 'center', mb: 1 }}
-              >
-                <input type={field.fieldType} disabled={!isEditing} />
-                <Typography sx={{ ml: 1 }}>{label}</Typography>
-                {isEditing && (
-                  <IconButton
-                    size="small"
-                    onClick={() =>
-                      onChange({
-                        options: { ...field.options, [key]: undefined },
-                      })
-                    }
+            {isEditing
+              ? // Editable option list
+                Object.entries(field.options).map(([key, label]) => (
+                  <Box
+                    key={key}
+                    sx={{ display: 'flex', alignItems: 'center', mb: 1 }}
                   >
-                    <DeleteIcon fontSize="small" />
-                  </IconButton>
-                )}
-              </Box>
-            ))}
+                    <TextField
+                      variant="standard"
+                      value={label}
+                      onChange={(e) =>
+                        onChange({
+                          options: { ...field.options, [key]: e.target.value },
+                        })
+                      }
+                      placeholder="Option"
+                      InputProps={{ disableUnderline: true }}
+                      sx={{ flexGrow: 1 }}
+                    />
+                    <IconButton
+                      size="small"
+                      onClick={() =>
+                        onChange({
+                          options: { ...field.options, [key]: undefined },
+                        })
+                      }
+                    >
+                      <DeleteIcon fontSize="small" />
+                    </IconButton>
+                  </Box>
+                ))
+              : // Read-only preview
+                Object.values(field.options).map((label, idx) => (
+                  <Typography key={idx} sx={{ mb: 1 }}>
+                    • {label}
+                  </Typography>
+                ))}
             {isEditing && (
               <Stack direction="row" spacing={1}>
                 <Button
@@ -173,8 +192,9 @@ const QuestionBuilder: React.FC<QuestionBuilderProps> = ({
                     onChange({
                       options: {
                         ...field.options,
-                        [Date.now()]:
-                          'Option ' + (Object.keys(field.options).length + 1),
+                        [Date.now()]: `Option ${
+                          Object.keys(field.options).length + 1
+                        }`,
                       },
                     })
                   }
@@ -204,14 +224,12 @@ const QuestionBuilder: React.FC<QuestionBuilderProps> = ({
             pt: 1,
             display: 'flex',
             justifyContent: 'space-between',
-            alignItems: 'center',
           }}
         >
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
             <Switch
               checked={field.isRequired}
               onChange={(e) => onChange({ isRequired: e.target.checked })}
-              inputProps={{ 'aria-label': 'required toggle' }}
             />
             <Typography>Required</Typography>
           </Box>
@@ -223,4 +241,5 @@ const QuestionBuilder: React.FC<QuestionBuilderProps> = ({
     </Card>
   );
 };
+
 export default QuestionBuilder;
