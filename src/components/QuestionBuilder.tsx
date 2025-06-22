@@ -149,7 +149,7 @@ const QuestionBuilder: React.FC<QuestionBuilderProps> = ({
             variant="outlined"
             type={field.fieldType}
             fullWidth
-            disabled={!isEditing}
+            disabled={true}
             sx={{ mb: 2 }}
           />
         ) : (
