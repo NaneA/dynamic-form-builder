@@ -205,17 +205,6 @@ const QuestionBuilder: React.FC<QuestionBuilderProps> = ({
                 >
                   Add option
                 </Button>
-                <Button
-                  startIcon={<AddIcon />}
-                  size="small"
-                  onClick={() =>
-                    onChange({
-                      options: { ...field.options, [Date.now()]: '' },
-                    })
-                  }
-                >
-                  Other
-                </Button>
               </Stack>
             )}
           </Box>
