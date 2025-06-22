@@ -12,6 +12,8 @@ import {
   Typography,
   Stack,
   Button,
+  Checkbox,
+  Radio,
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
@@ -24,7 +26,12 @@ import type { FieldType, QuestionField } from '../store/formBuilderSlice';
 import type { SelectChangeEvent } from '@mui/material/Select';
 import DragHandle from '../assets/DragHandle';
 
-const FIELD_TYPES: FieldType[] = ['text', 'number', 'select', 'radio'];
+const FIELD_TYPES: { value: FieldType; label: string }[] = [
+  { value: 'text', label: 'Short Answer' },
+  { value: 'number', label: 'Number Field' },
+  { value: 'select', label: 'Multiple Choice' },
+  { value: 'radio', label: 'Checkbox' },
+];
 
 interface QuestionBuilderProps {
   id: string;
@@ -53,9 +60,11 @@ const QuestionBuilder: React.FC<QuestionBuilderProps> = ({
 
   const handleTypeChange = (e: SelectChangeEvent<FieldType>) => {
     const type = e.target.value as FieldType;
-    if (type === 'text' || type === 'number')
+    if (type === 'text' || type === 'number') {
       onChange({ fieldType: type, options: {} });
-    else onChange({ fieldType: type });
+    } else {
+      onChange({ fieldType: type });
+    }
   };
 
   useEffect(() => {
@@ -81,20 +90,18 @@ const QuestionBuilder: React.FC<QuestionBuilderProps> = ({
       sx={{
         mb: 2,
         position: 'relative',
-        borderLeft: isEditing ? '4px solid' : undefined,
+        borderLeft: isEditing ? '4px solid' : 'none',
         borderColor: isEditing ? 'primary.main' : undefined,
-        '&:hover .drag-handle': { opacity: 1 },
       }}
     >
       <Box
         {...dragHandleProps}
-        className="drag-handle"
         sx={{
           position: 'absolute',
           top: 4,
           left: '50%',
           transform: 'translateX(-50%)',
-          opacity: 0,
+          opacity: isEditing ? 1 : 0,
           transition: 'opacity 0.2s',
           zIndex: 1,
           pointerEvents: 'auto',
@@ -119,7 +126,7 @@ const QuestionBuilder: React.FC<QuestionBuilderProps> = ({
           <FormControl
             variant="standard"
             size="small"
-            sx={{ minWidth: 120, ml: 2 }}
+            sx={{ minWidth: 180, ml: 2 }}
           >
             <InputLabel>Type</InputLabel>
             <Select
@@ -127,15 +134,16 @@ const QuestionBuilder: React.FC<QuestionBuilderProps> = ({
               onChange={handleTypeChange}
               label="Type"
             >
-              {FIELD_TYPES.map((t) => (
-                <MenuItem key={t} value={t}>
-                  {t.charAt(0).toUpperCase() + t.slice(1)}
+              {FIELD_TYPES.map(({ value, label }) => (
+                <MenuItem key={value} value={value}>
+                  {label}
                 </MenuItem>
               ))}
             </Select>
           </FormControl>
         </Box>
 
+        {/* Field input or options editor */}
         {['text', 'number'].includes(field.fieldType) ? (
           <TextField
             variant="outlined"
@@ -146,43 +154,44 @@ const QuestionBuilder: React.FC<QuestionBuilderProps> = ({
           />
         ) : (
           <Box sx={{ mb: 2 }}>
-            {isEditing
-              ? // Editable option list
-                Object.entries(field.options).map(([key, label]) => (
-                  <Box
-                    key={key}
-                    sx={{ display: 'flex', alignItems: 'center', mb: 1 }}
+            {Object.entries(field.options).map(([key, label], idx, arr) => (
+              <Box
+                key={key}
+                sx={{ display: 'flex', alignItems: 'center', mb: 1 }}
+              >
+                {field.fieldType === 'select' ? (
+                  <Checkbox disabled={true} />
+                ) : (
+                  <Radio disabled={true} />
+                )}
+                <TextField
+                  variant="standard"
+                  value={label}
+                  onChange={(e) =>
+                    onChange({
+                      options: { ...field.options, [key]: e.target.value },
+                    })
+                  }
+                  placeholder="Type option…"
+                  InputProps={{ disableUnderline: true }}
+                  autoFocus={isEditing && idx === arr.length - 1}
+                  sx={{ flexGrow: 1, ml: 1 }}
+                  disabled={!isEditing}
+                />
+                {isEditing && (
+                  <IconButton
+                    size="small"
+                    onClick={() => {
+                      const updated = { ...field.options };
+                      delete updated[key];
+                      onChange({ options: updated });
+                    }}
                   >
-                    <TextField
-                      variant="standard"
-                      value={label}
-                      onChange={(e) =>
-                        onChange({
-                          options: { ...field.options, [key]: e.target.value },
-                        })
-                      }
-                      placeholder="Option"
-                      InputProps={{ disableUnderline: true }}
-                      sx={{ flexGrow: 1 }}
-                    />
-                    <IconButton
-                      size="small"
-                      onClick={() =>
-                        onChange({
-                          options: { ...field.options, [key]: undefined },
-                        })
-                      }
-                    >
-                      <DeleteIcon fontSize="small" />
-                    </IconButton>
-                  </Box>
-                ))
-              : // Read-only preview
-                Object.values(field.options).map((label, idx) => (
-                  <Typography key={idx} sx={{ mb: 1 }}>
-                    • {label}
-                  </Typography>
-                ))}
+                    <DeleteIcon fontSize="small" />
+                  </IconButton>
+                )}
+              </Box>
+            ))}
             {isEditing && (
               <Stack direction="row" spacing={1}>
                 <Button
@@ -190,12 +199,7 @@ const QuestionBuilder: React.FC<QuestionBuilderProps> = ({
                   size="small"
                   onClick={() =>
                     onChange({
-                      options: {
-                        ...field.options,
-                        [Date.now()]: `Option ${
-                          Object.keys(field.options).length + 1
-                        }`,
-                      },
+                      options: { ...field.options, [Date.now()]: '' },
                     })
                   }
                 >
@@ -206,7 +210,7 @@ const QuestionBuilder: React.FC<QuestionBuilderProps> = ({
                   size="small"
                   onClick={() =>
                     onChange({
-                      options: { ...field.options, [Date.now()]: 'Other' },
+                      options: { ...field.options, [Date.now()]: '' },
                     })
                   }
                 >
