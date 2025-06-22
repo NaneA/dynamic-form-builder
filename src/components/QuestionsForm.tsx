@@ -1,20 +1,23 @@
 import React, { useState } from 'react';
 import { Card, Box, TextField, Button } from '@mui/material';
 import { v4 as uuidv4 } from 'uuid';
+import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
+import type { DropResult } from '@hello-pangea/dnd';
+
 import { useAppSelector, useAppDispatch } from '../hooks/hooks';
 import {
   setTitle,
   setDescription,
   addQuestionField,
+  reorderFields,
 } from '../store/formBuilderSlice';
 import QuestionBuilder from './QuestionBuilder';
 
 const QuestionForm: React.FC = () => {
   const dispatch = useAppDispatch();
   const { title, description, order } = useAppSelector(
-    (state) => state.formBuilder.formValue,
+    (s) => s.formBuilder.formValue,
   );
-
   const [editingId, setEditingId] = useState<string | null>(null);
 
   const handleAdd = () => {
@@ -33,9 +36,17 @@ const QuestionForm: React.FC = () => {
     setEditingId(id);
   };
 
+  const handleDragEnd = (result: DropResult) => {
+    if (!result.destination) return;
+    const newOrder = Array.from(order);
+    const [moved] = newOrder.splice(result.source.index, 1);
+    newOrder.splice(result.destination.index, 0, moved);
+    dispatch(reorderFields(newOrder));
+  };
+
   return (
     <>
-      <Card sx={{ mb: 2, position: 'relative' }}>
+      <Card sx={{ mb: 2 }}>
         <Box sx={{ pt: 3, px: 2, pb: 2 }}>
           <TextField
             fullWidth
@@ -61,17 +72,35 @@ const QuestionForm: React.FC = () => {
         Add Question
       </Button>
 
-      {order.map((qid) => (
-        <QuestionBuilder
-          key={qid}
-          id={qid}
-          isEditing={editingId === qid}
-          onStartEdit={() => setEditingId(qid)}
-          onStopEdit={() => setEditingId(null)}
-        />
-      ))}
+      <DragDropContext onDragEnd={handleDragEnd}>
+        <Droppable droppableId="questions">
+          {(provided) => (
+            <Box ref={provided.innerRef} {...provided.droppableProps}>
+              {order.map((qid, idx) => (
+                <Draggable key={qid} draggableId={qid} index={idx}>
+                  {(prov) => (
+                    <Box
+                      ref={prov.innerRef}
+                      {...prov.draggableProps}
+                      sx={{ mb: 1 }}
+                    >
+                      <QuestionBuilder
+                        id={qid}
+                        isEditing={editingId === qid}
+                        onStartEdit={() => setEditingId(qid)}
+                        onStopEdit={() => setEditingId(null)}
+                        dragHandleProps={prov.dragHandleProps}
+                      />
+                    </Box>
+                  )}
+                </Draggable>
+              ))}
+              {provided.placeholder}
+            </Box>
+          )}
+        </Droppable>
+      </DragDropContext>
     </>
   );
 };
-
 export default QuestionForm;

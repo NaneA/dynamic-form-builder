@@ -10,18 +10,20 @@ import {
   IconButton,
   Switch,
   Typography,
-  Button,
   Stack,
+  Button,
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
+import type { SelectChangeEvent } from '@mui/material/Select';
+
 import { useAppSelector, useAppDispatch } from '../hooks/hooks';
 import {
   updateQuestionField,
   removeQuestionField,
 } from '../store/formBuilderSlice';
 import type { FieldType, QuestionField } from '../store/formBuilderSlice';
-import type { SelectChangeEvent } from '@mui/material/Select';
+import DragHandle from '../assets/DragHandle';
 
 const FIELD_TYPES: FieldType[] = ['text', 'number', 'select', 'radio'];
 
@@ -30,6 +32,7 @@ interface QuestionBuilderProps {
   isEditing: boolean;
   onStartEdit: () => void;
   onStopEdit: () => void;
+  dragHandleProps?: any;
 }
 
 const QuestionBuilder: React.FC<QuestionBuilderProps> = ({
@@ -37,6 +40,7 @@ const QuestionBuilder: React.FC<QuestionBuilderProps> = ({
   isEditing,
   onStartEdit,
   onStopEdit,
+  dragHandleProps,
 }) => {
   const dispatch = useAppDispatch();
   const field = useAppSelector(
@@ -79,10 +83,22 @@ const QuestionBuilder: React.FC<QuestionBuilderProps> = ({
       onClick={onStartEdit}
       sx={{
         mb: 2,
-        borderLeft: isEditing ? '4px solid' : undefined,
-        borderColor: isEditing ? 'primary.main' : undefined,
+        borderLeft: isEditing ? '4px solid primary.main' : undefined,
       }}
     >
+      <Box
+        sx={{
+          borderBottom: '1px solid',
+          borderColor: 'divider',
+          py: 1,
+          display: 'flex',
+          justifyContent: 'center',
+        }}
+        {...dragHandleProps}
+      >
+        <DragHandle />
+      </Box>
+
       <Box sx={{ p: 2 }}>
         <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
           <TextField
@@ -96,7 +112,6 @@ const QuestionBuilder: React.FC<QuestionBuilderProps> = ({
               sx: { fontWeight: 'bold', fontSize: '1.2rem' },
             }}
           />
-
           <FormControl
             variant="standard"
             size="small"
@@ -208,5 +223,4 @@ const QuestionBuilder: React.FC<QuestionBuilderProps> = ({
     </Card>
   );
 };
-
 export default QuestionBuilder;
